@@ -1,26 +1,43 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import { resolve } from "path";
+import { peerDependencies, dependencies } from "./package.json";
+import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
-import path from "path";
 
 export default defineConfig({
+  plugins: [
+    react({
+      jsxRuntime: "classic",
+    }),
+    dts({
+      include: ["src/**/*"],
+    }),
+  ],
   build: {
     lib: {
-      entry: path.resolve(__dirname, "index.ts"),
-      name: "ViteButton",
-      fileName: (format) => `index.${format}.js`,
+      entry: resolve(__dirname, "src", "index.ts"),
+      formats: ["es", "cjs"],
+      fileName: (ext) => `index.${ext}.js`,
     },
     rollupOptions: {
-      external: ["react", "react-dom"],
+      external: [
+        ...Object.keys(peerDependencies),
+        ...Object.keys(dependencies),
+      ],
       output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
-        },
+        preserveModules: true,
+        exports: "named",
+        // assetFileNames: "assets/[name].[ext]",
       },
     },
+
+    target: "esnext",
     sourcemap: true,
-    emptyOutDir: true,
   },
-  plugins: [react(), dts()],
+  resolve: {
+    alias: {
+      "@/": `${resolve(__dirname, "src")}/`,
+      "@assets/": `${resolve(__dirname, "public")}/`,
+    },
+  },
 });

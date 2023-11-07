@@ -1,1 +1,2 @@
-export { Button } from "./Button";
+export { Button, buttonVariants, type ButtonProps } from "./button";
+export { Separator } from "./separator";
